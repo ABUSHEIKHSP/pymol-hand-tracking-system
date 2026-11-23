@@ -45,7 +45,7 @@ while cap.isOpened():
 
     timestamp_ms = time.monotonic_ns() // 1_000_000
     detection_results = recognizer.recognize_for_video(mp_image, timestamp_ms)
-    print(detection_results.gestures)
+    
     fist_detected = any(
         gestures and gestures[0].category_name == "Closed_Fist"
         for gestures in detection_results.gestures
