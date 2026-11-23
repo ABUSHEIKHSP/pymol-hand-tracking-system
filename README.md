@@ -58,13 +58,17 @@ These values can be adjusted in `main.py` to change control sensitivity.
 
 ## Requirements
 
-- Python
+- Linux or macOS with Bash
+- Python 3
 - A webcam
 - [PyMOL](https://pymol.org/) with its XML-RPC server enabled
-- OpenCV
-- MediaPipe
+- `curl` (used by the setup script to download the MediaPipe model)
 
-Python dependencies are listed in `requirements.txt`: `opencv-python` and `mediapipe`.
+Python packages are listed in `requirements.txt`:
+
+- `opencv-python`
+- `mediapipe`
+- `numpy`
 
 ## Setup
 
@@ -75,59 +79,48 @@ git clone https://github.com/ABUSHEIKHSP/pymol-hand-tracking-system.git
 cd pymol-hand-tracking-system
 ```
 
-### 2. Create and activate a virtual environment
-
-Linux / macOS:
+### 2. Run the setup script
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+bash install.sh
 ```
 
-Windows PowerShell:
+The script:
 
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-```
+1. Creates a project-local virtual environment in `.venv` if one does not already exist.
+2. Activates the virtual environment.
+3. Installs the Python dependencies from `requirements.txt`.
+4. Downloads `gesture_recognizer.task` into the project root if it is not already present.
 
-### 3. Install Python dependencies
+The MediaPipe model is excluded from Git by `.gitignore`, so the setup script downloads it locally. Re-running the script will reuse the existing virtual environment and model file.
+
+To use a specific Python interpreter, set the `PYTHON` variable:
 
 ```bash
-pip install -r requirements.txt
+PYTHON=python3 bash install.sh
 ```
-
-### 4. Download the MediaPipe Gesture Recognizer model
-
-The application expects the Gesture Recognizer model bundle at `gesture_recognizer.task` in the project root.
-
-Download it with:
-
-```bash
-curl -L "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task" -o gesture_recognizer.task
-```
-
-The model file is excluded from version control by `.gitignore` (`*.task`), so it must be downloaded locally before running the application.
 
 ## Running the Application
 
 ### 1. Start PyMOL with XML-RPC enabled
 
-Start PyMOL with its remote-control server enabled:
+In one terminal, start PyMOL:
 
 ```bash
 pymol -R
 ```
 
-The application connects to the XML-RPC server at `http://localhost:9123`. Keep PyMOL running while using the hand-tracking application.
+The application connects to the XML-RPC server at `http://localhost:9123`. Keep PyMOL running.
 
-### 2. Start the hand-tracking application
+### 2. Launch hand tracking
 
-In a separate terminal, from the project directory with the virtual environment activated:
+Open a second terminal in the project directory and run:
 
 ```bash
-python main.py
+bash run.sh
 ```
+
+The launcher activates the project virtual environment, checks that the PyMOL XML-RPC server is reachable, and then starts `main.py`.
 
 The webcam window displays the camera feed with detected hand landmarks. Use the gestures in the control table to interact with the structure in PyMOL.
 
@@ -139,28 +132,37 @@ Press **q** while the webcam window is focused to exit the application.
 pymol-hand-tracking-system/
 ├── main.py                 # Webcam capture, hand tracking, gesture recognition, and PyMOL controls
 ├── requirements.txt        # Python dependencies
-├── gesture_recognizer.task # MediaPipe Gesture Recognizer model (download separately)
-├── .gitignore              # Excludes virtual environment, model bundles, and test files
+├── install.sh              # Creates the virtual environment and installs dependencies/model
+├── run.sh                  # Checks PyMOL connection and launches the application
+├── gesture_recognizer.task # MediaPipe model (downloaded by install.sh; not committed)
+├── .gitignore
 └── README.md
 ```
 
 ## Troubleshooting
 
+### Setup script says Python or curl is missing
+
+Install Python 3 and curl using your operating system's package manager. The setup script uses `python3` by default. To select another interpreter, set `PYTHON`, for example:
+
+```bash
+PYTHON=python3.12 bash install.sh
+```
+
 ### PyMOL connection refused
 
-- Make sure PyMOL is running with XML-RPC enabled using `pymol -R`.
-- Confirm the server is available at `http://localhost:9123`.
-- Start PyMOL before launching `main.py`.
+- Start PyMOL with XML-RPC enabled using `pymol -R`.
+- Keep the PyMOL process running while using this application.
+- The launcher checks `127.0.0.1:9123`; make sure the XML-RPC server is listening on that port.
 
 ### Gesture Recognizer model not found
 
-- Confirm that `gesture_recognizer.task` exists in the project root.
-- Check that the filename matches the `model_asset_path` configured in `main.py`.
+Run `bash install.sh` to download the model. Confirm that `gesture_recognizer.task` exists in the project root.
 
 ### Webcam does not open
 
 - Check that the webcam is connected and available to the operating system.
-- The current implementation opens camera index `0` using `cv2.VideoCapture(0)`. Change the index if your webcam uses a different device index.
+- The current implementation opens camera index `0` using `cv2.VideoCapture(0)`. Change the index in `main.py` if your webcam uses a different device index.
 - Ensure that no other application is exclusively using the webcam.
 
 ### Hand gestures are not detected reliably
