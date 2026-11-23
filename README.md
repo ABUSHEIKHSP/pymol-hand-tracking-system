@@ -58,11 +58,11 @@ These values can be adjusted in `main.py` to change control sensitivity.
 
 ## Requirements
 
-- Linux or macOS with Bash
+- Linux, macOS, or Windows
 - Python 3
+- Bash (Linux/macOS) or PowerShell (Windows)
 - A webcam
 - [PyMOL](https://pymol.org/) with its XML-RPC server enabled
-- `curl` (used by the setup script to download the MediaPipe model)
 
 Python packages are listed in `requirements.txt`:
 
@@ -100,6 +100,29 @@ To use a specific Python interpreter, set the `PYTHON` variable:
 PYTHON=python3 bash install.sh
 ```
 
+### Windows (PowerShell)
+
+Open PowerShell in the project directory and run:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Download the MediaPipe model:
+
+```powershell
+Invoke-WebRequest -Uri "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task" -OutFile "gesture_recognizer.task"
+```
+
+If PowerShell blocks environment activation, allow it for the current session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
 ## Running the Application
 
 ### 1. Start PyMOL with XML-RPC enabled
@@ -122,6 +145,15 @@ bash run.sh
 
 The launcher activates the project virtual environment, checks that the PyMOL XML-RPC server is reachable, and then starts `main.py`.
 
+### Windows (PowerShell)
+
+Start PyMOL with XML-RPC enabled in one terminal. In a second PowerShell window, navigate to the project directory and run:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python main.py
+```
+
 The webcam window displays the camera feed with detected hand landmarks. Use the gestures in the control table to interact with the structure in PyMOL.
 
 Press **q** while the webcam window is focused to exit the application.
@@ -141,9 +173,9 @@ pymol-hand-tracking-system/
 
 ## Troubleshooting
 
-### Setup script says Python or curl is missing
+### Bash setup script says Python or curl is missing
 
-Install Python 3 and curl using your operating system's package manager. The setup script uses `python3` by default. To select another interpreter, set `PYTHON`, for example:
+Install Python 3 and curl using your operating system's package manager. The Bash setup script uses `python3` by default. To select another interpreter, set `PYTHON`, for example:
 
 ```bash
 PYTHON=python3.12 bash install.sh
