@@ -1,4 +1,7 @@
-.venv
+.venv/
+__pycache__/
+*.py[cod]
 *.task
+*.tmp
 *test.py
 *.ipynb
